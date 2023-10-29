@@ -6,13 +6,14 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 12:35:29 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/10/28 18:57:56 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/10/29 11:57:24 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-#include <stdio.h>
+# include <stdio.h> // delete that!
+
 char	*get_next_line(int fd)
 {
 	static char *current_line;
@@ -23,7 +24,7 @@ char	*get_next_line(int fd)
 		if (!current_line)
 			return (NULL);
 	}
-	read(fd, current_line, BUFFER_SIZE);
+	printf("returned read value: %zi\n", read(fd, current_line, BUFFER_SIZE));
 	return (current_line);
 }
 
@@ -38,7 +39,7 @@ int	main()
 		printf("An error occurred while trying to open '%s' file!\n", filename);
 		return (0);
 	}
-	printf("Content of '%s' file is:\n\n", filename);
+	printf("Read line of '%s' file is:\n\n", filename);
 	printf("%s\n", get_next_line(fd));
 	printf("\nEnd of content.\n");
 

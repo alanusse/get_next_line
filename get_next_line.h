@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 12:33:36 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/10/28 18:50:42 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/10/29 13:30:36 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,6 @@
 # endif
 
 char	*get_next_line(int fd);
+char  *new_line_position(char *str);
 
 #endif
