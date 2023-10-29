@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 12:35:29 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/10/29 11:57:24 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:50:43 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 char	*get_next_line(int fd)
 {
-	static char *current_line;
+	static char	*current_line;
 
 	if (!current_line)
 	{
