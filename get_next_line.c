@@ -6,26 +6,41 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 12:35:29 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/10/29 21:50:43 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:23:34 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+void	read_line(int fd, char *line, char *rest)
+{
+	char	*buffer[BUFFER_SIZE];
+	char	*new_line_pos;
+	int		read_bytes;
 
-# include <stdio.h> // delete that!
+	read_bytes = read(fd, buffer, BUFFER_SIZE);
+	new_line_pos = new_line_position(buffer);
+	while (read_bytes > 0 && !new_line_pos)
+	{
+		if (!line)
+		{
+		}
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		new_line_pos = new_line_position(buffer);
+	}
+}
 
+// 1 - function to get pointer of \n encountered
+// 2 - function to join buffers until \n char (passed pointer)
 char	*get_next_line(int fd)
 {
-	static char	*current_line;
+	static char	*rest;
+	char		*line;
 
-	if (!current_line)
-	{
-		current_line = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-		if (!current_line)
-			return (NULL);
-	}
-	printf("returned read value: %zi\n", read(fd, current_line, BUFFER_SIZE));
-	return (current_line);
+	if (fd < 0 || BUFFER_SIZE < 1)
+		return (NULL);
+	line = NULL;
+	read_line(fd, line, rest);
+	return (line);
 }
 
 int	main()

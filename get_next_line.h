@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 12:33:36 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/10/30 14:27:28 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:54:59 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,6 @@
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 10
 # endif
-
-typedef struct s_buffer
-{
-	char			*content;
-	struct s_buffer	*next;
-}						t_buffer;
-
 
 char	*get_next_line(int fd);
 char	*new_line_position(char *str);
