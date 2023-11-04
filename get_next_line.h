@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/28 12:33:36 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/02 18:54:59 by aglanuss         ###   ########.fr       */
+/*   Created: 2023/11/04 18:17:33 by aglanuss          #+#    #+#             */
+/*   Updated: 2023/11/04 19:53:58 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
 # endif
 
 char	*get_next_line(int fd);
-char	*new_line_position(char *str);
+char	*append_new_buffer(char *str, char *buffer);
+char	*read_until_newline(int fd);
+char	*ft_strdup(const char *s1);
+size_t	ft_strlen(const char *str);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 #endif
