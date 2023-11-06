@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:38:55 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/04 20:23:21 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/11/06 12:39:24 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ char	*ft_strdup(const char *s1)
 		return (NULL);
 	dup[len] = '\0';
 	i = -1;
-	while (dup[++i])
+	while (++i < len)
 		dup[i] = s1[i];
 	return (dup);
 }
@@ -50,18 +50,12 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	ptr = (char *)malloc((strlen + 1) * sizeof(char));
 	if (!ptr)
 		return (NULL);
-	i = 0;
-	while (s1[i] != '\0')
-	{
+	i = -1;
+	while (s1[++i])
 		ptr[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (s2[j] != '\0')
-	{
+	j = -1;
+	while (s2[++j])
 		ptr[i + j] = s2[j];
-		j++;
-	}
 	ptr[i + j] = '\0';
 	return (ptr);
 }
