@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:38:55 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/06 12:39:24 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/11/07 17:57:47 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,20 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		ptr[i + j] = s2[j];
 	ptr[i + j] = '\0';
 	return (ptr);
+}
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+{
+	size_t	i;
+
+	if (dstsize == 0)
+		return (ft_strlen(src));
+	i = 0;
+	while (i < (dstsize - 1) && src[i] != '\0')
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = '\0';
+	return (ft_strlen(src));
 }

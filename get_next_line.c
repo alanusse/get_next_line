@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/06 13:33:19 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/11/07 20:32:56 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,29 @@ char	*newline_position(char *str)
 	return (NULL);
 }
 
+char	*append_new_content(char *str, char *buffer, int read_bytes)
+{
+	char	*content;
+	char	*tmp;
+
+	content = (char *)malloc((read_bytes + 1) * sizeof(char));
+	if (!content)
+		return (NULL);
+	ft_strlcpy(content, buffer, read_bytes);
+	if (!str)
+		str = ft_strdup(content);
+	else
+	{
+		tmp = ft_strjoin(str, content);
+		if (!tmp)
+			return (NULL);
+		free(str);
+		str = tmp;
+	}
+	free(content);
+	return (str);
+}
+
 /**
  * Read a file descriptor until a '\\n' is found in buffer.
  * 
@@ -39,52 +62,26 @@ char	*newline_position(char *str)
 */
 char	*read_until_newline(int fd)
 {
-	char	*buffer;
+	char	buffer[BUFFER_SIZE];
+	ssize_t	read_bytes;
 	char	*str;
-	char	*tmp;
 
-	buffer = read_fd(fd);
+	read_bytes = read(fd, buffer, BUFFER_SIZE);
 	str = NULL;
-	while (buffer && !newline_position(buffer))
+	while (read_bytes > 0)
 	{
-		if (!str)
-			str = ft_strdup(buffer);
-		else
-		{
-			tmp = ft_strjoin(str, buffer);
-			free(str);
-			str = tmp;
-		}
-		free(buffer);
-		buffer = read_fd(fd);
+		if (!append_new_content(str, buffer, read_bytes))
+			return (NULL);
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
 	}
 	return (str);
 }
-// char	*read_until_newline(int fd)
-// {
-// 	char	buffer[BUFFER_SIZE];
-// 	char	*str;
-// 	char	*tmp;
-// 	ssize_t	read_bytes;
 
-// 	str = ft_strdup("");
-// 	if (!str)
-// 		return (NULL);
-// 	read_bytes = read(fd, buffer, BUFFER_SIZE);
-// 	while (read_bytes > 0)
-// 	{
-// 		tmp = ft_strjoin(str, buffer);
-// 		free(str);
-// 		if (!tmp)
-// 			return (NULL);
-// 		str = tmp;
-// 		if (newline_position(buffer))
-// 			break ;
-// 		read_bytes = read(fd, buffer, BUFFER_SIZE);
-// 	}
-// 	return (str);
-// }
-
+/**
+ * Read file once with BUFFER_SIZE as value and return a string of read result.
+ * 
+ * Return NULL if read function return 0 or an error occurred.
+*/
 char	*read_fd(int fd)
 {
 	char	buffer[BUFFER_SIZE];
@@ -92,13 +89,12 @@ char	*read_fd(int fd)
 	ssize_t	read_bytes;
 
 	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	if (read_bytes < 0)
+	if (read_bytes <= 0)
 		return (NULL);
-	if (read_bytes < BUFFER_SIZE)
-		buffer[read_bytes] = '\0';
-	str = ft_strdup(buffer);
+	str = (char *)malloc((read_bytes + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
+	ft_strlcpy(str, buffer, read_bytes);
 	return (str);
 }
 
@@ -114,7 +110,7 @@ int	main(void)
 
 	fd = open("file.txt", O_RDONLY);
 	str = read_until_newline(fd);
-	// printf("file.txt first line:\n\n");
+	// str = read_fd(fd);
 	printf("%s\n", str);
 	free(str);
 	return (0);
