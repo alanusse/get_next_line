@@ -6,102 +6,127 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/07 20:32:56 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/04 15:31:41 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <printf.h>
 
-/**
- * Find a '\\n' character and returns its memory address.
- * 
- * If '\\n' is not found, returns NULL.
-*/
-char	*newline_position(char *str)
+int	contains_newline(char *str)
 {
+	if (!str)
+		return (0);
+	while (*str)
+	{
+		if (*str == '\n')
+			return (1);
+		str++;
+	}
+	return (0);
+}
+
+/**
+ * Read a file descriptor and return a string containing
+ * all the reads until a '\\n' or '\\0' character are found.
+ * 
+ * If read function returns 0 bytes, return a NULL pointer.
+*/
+char	*read_until_newline(int fd)
+{
+	char		buffer[BUFFER_SIZE];
+	char		*result;
+	char		*tmp;
+
+	result = NULL;
+	while (!contains_newline(result) && read(fd, buffer, BUFFER_SIZE) > 0)
+	{
+		if (!result)
+		{
+			result = ft_strdup(buffer);
+			if (!result)
+				return (NULL);
+		}
+		else
+		{
+			tmp = ft_strjoin(result, buffer);
+			free(result);
+			if (!tmp)
+				return (NULL);
+			result = tmp;
+		}
+	}
+	return (result);
+}
+
+/**
+ * Assign read content to a variable, trim it until a '\\n' character and assign the trimmed
+ * value (including '\\n' character) to another variable.
+*/
+char	*format_content(char **content)
+{
+	char		*new_content;
+	char		*tmp;
+	char		*str;
 	size_t	i;
 
-	i = -1;
-	while (str[++i])
+	if (!contains_newline(*content))
 	{
-		if (str[i] == '\n')
-			return (&str[i]);
+		tmp = ft_strdup(*content);
+		free(*content);
+		return (tmp);
+	}
+	else
+	{
+		str = *content;
+		i = 0;
+		while (str[i])
+		{
+			if (str[i] == '\n')
+			{
+				tmp = ft_strndup(str, i);
+				if (!tmp)
+					return (NULL);
+				new_content = ft_strdup(&str[i + 1]);
+				if (!new_content)
+					return (NULL);
+				free(*content);
+				*content = new_content;
+				return (tmp);
+			}
+			i++;
+		}
 	}
 	return (NULL);
 }
 
-char	*append_new_content(char *str, char *buffer, int read_bytes)
+char	*get_next_line(int fd)
 {
-	char	*content;
-	char	*tmp;
+	static char	*content;
+	char				*last_read;
+	char				*tmp;
 
-	content = (char *)malloc((read_bytes + 1) * sizeof(char));
+	printf("actual_content: %s\n", content);
 	if (!content)
-		return (NULL);
-	ft_strlcpy(content, buffer, read_bytes);
-	if (!str)
-		str = ft_strdup(content);
-	else
 	{
-		tmp = ft_strjoin(str, content);
+		content = read_until_newline(fd);
+		if (!content)
+			return (NULL);
+	}
+	if (!contains_newline(content))
+	{
+		last_read = read_until_newline(fd);
+		if (!last_read)
+			return (NULL);
+		tmp = ft_strjoin(content, last_read);
+		free(last_read);
 		if (!tmp)
 			return (NULL);
-		free(str);
-		str = tmp;
+		free(content);
+		content = tmp;
 	}
-	free(content);
-	return (str);
+	return (format_content(&content));
 }
-
-/**
- * Read a file descriptor until a '\\n' is found in buffer.
- * 
- * This function will return a string containing all readings until a '\\n'
- * character was encountered in new buffer.
-*/
-char	*read_until_newline(int fd)
-{
-	char	buffer[BUFFER_SIZE];
-	ssize_t	read_bytes;
-	char	*str;
-
-	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	str = NULL;
-	while (read_bytes > 0)
-	{
-		if (!append_new_content(str, buffer, read_bytes))
-			return (NULL);
-		read_bytes = read(fd, buffer, BUFFER_SIZE);
-	}
-	return (str);
-}
-
-/**
- * Read file once with BUFFER_SIZE as value and return a string of read result.
- * 
- * Return NULL if read function return 0 or an error occurred.
-*/
-char	*read_fd(int fd)
-{
-	char	buffer[BUFFER_SIZE];
-	char	*str;
-	ssize_t	read_bytes;
-
-	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	if (read_bytes <= 0)
-		return (NULL);
-	str = (char *)malloc((read_bytes + 1) * sizeof(char));
-	if (!str)
-		return (NULL);
-	ft_strlcpy(str, buffer, read_bytes);
-	return (str);
-}
-
-// char	*get_next_line(int fd)
-// {
-
-// }
 
 int	main(void)
 {
@@ -109,9 +134,9 @@ int	main(void)
 	char	*str;
 
 	fd = open("file.txt", O_RDONLY);
-	str = read_until_newline(fd);
-	// str = read_fd(fd);
-	printf("%s\n", str);
-	free(str);
+	printf("call: %s\n", get_next_line(fd));
+	printf("call: %s\n", get_next_line(fd));
+
+	// printf("%i\n", !contains_newline(str));
 	return (0);
 }

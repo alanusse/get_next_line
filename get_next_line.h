@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:17:33 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/07 17:56:43 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/04 01:09:48 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,9 @@
 # endif
 
 char	*get_next_line(int fd);
-char	*read_until_newline(int fd);
-char	*ft_strdup(const char *s1);
-size_t	ft_strlen(const char *str);
+size_t ft_strlen(char *str);
+char  *ft_strdup(char *str);
+char  *ft_strndup(char *str, size_t n);
 char	*ft_strjoin(char const *s1, char const *s2);
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
-char	*newline_position(char *str);
-char	*read_fd(int fd);
 
 #endif
