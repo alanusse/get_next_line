@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/04 15:31:41 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/04 17:08:16 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,16 @@ char	*read_until_newline(int fd)
 	char		buffer[BUFFER_SIZE];
 	char		*result;
 	char		*tmp;
+	ssize_t	read_bytes;
 
 	result = NULL;
-	while (!contains_newline(result) && read(fd, buffer, BUFFER_SIZE) > 0)
+
+	while (!contains_newline(result))
 	{
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		buffer[read_bytes] = '\0';
+		if (read_bytes <= 0)
+			return (result);
 		if (!result)
 		{
 			result = ft_strdup(buffer);
@@ -106,7 +112,6 @@ char	*get_next_line(int fd)
 	char				*last_read;
 	char				*tmp;
 
-	printf("actual_content: %s\n", content);
 	if (!content)
 	{
 		content = read_until_newline(fd);
@@ -117,7 +122,11 @@ char	*get_next_line(int fd)
 	{
 		last_read = read_until_newline(fd);
 		if (!last_read)
+		{
+			if (content)
+				return (format_content(&content));
 			return (NULL);
+		}
 		tmp = ft_strjoin(content, last_read);
 		free(last_read);
 		if (!tmp)
@@ -128,15 +137,15 @@ char	*get_next_line(int fd)
 	return (format_content(&content));
 }
 
-int	main(void)
-{
-	int		fd;
-	char	*str;
+// int	main(void)
+// {
+// 	int		fd;
+// 	char	*str;
 
-	fd = open("file.txt", O_RDONLY);
-	printf("call: %s\n", get_next_line(fd));
-	printf("call: %s\n", get_next_line(fd));
+// 	fd = open("file.txt", O_RDONLY);
+// 	printf("call: %s\n", get_next_line(fd));
+// 	printf("call: %s\n", get_next_line(fd));
 
-	// printf("%i\n", !contains_newline(str));
-	return (0);
-}
+// 	// printf("%i\n", !contains_newline(str));
+// 	return (0);
+// }
