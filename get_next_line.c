@@ -6,25 +6,12 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/04 17:08:16 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/04 22:46:35 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <printf.h>
-
-int	contains_newline(char *str)
-{
-	if (!str)
-		return (0);
-	while (*str)
-	{
-		if (*str == '\n')
-			return (1);
-		str++;
-	}
-	return (0);
-}
 
 /**
  * Read a file descriptor and return a string containing
@@ -34,35 +21,51 @@ int	contains_newline(char *str)
 */
 char	*read_until_newline(int fd)
 {
-	char		buffer[BUFFER_SIZE];
+	char		buffer[BUFFER_SIZE + 1];
 	char		*result;
-	char		*tmp;
 	ssize_t	read_bytes;
 
 	result = NULL;
-
-	while (!contains_newline(result))
+	read_bytes = read(fd, buffer, BUFFER_SIZE);
+	buffer[read_bytes] = '\0';
+	while (!ft_strchr(result, '\n') && read_bytes > 0)
 	{
+		if (!result)
+			result = ft_strdup(buffer);
+		else
+			result = ft_strjoin(result, buffer);
+		if (!result)
+			return (NULL);
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		buffer[read_bytes] = '\0';
-		if (read_bytes <= 0)
-			return (result);
-		if (!result)
-		{
-			result = ft_strdup(buffer);
-			if (!result)
-				return (NULL);
-		}
-		else
-		{
-			tmp = ft_strjoin(result, buffer);
-			free(result);
-			if (!tmp)
-				return (NULL);
-			result = tmp;
-		}
 	}
 	return (result);
+}
+
+char	*strtrim(char **str)
+{
+	int		i;
+	char	*ret;
+	char	*string;
+	char	*tmp;
+
+	i = 0;
+	string = *str;
+	while (string[i] != '\n')
+		i++;
+	ret = (char *)malloc((i + 2) * sizeof(char));
+	if (!ret)
+		return (NULL);
+	ret[i + 1] = '\0';
+	i = -1;
+	while (string[++i] != '\n')
+		ret[i] = string[i];
+	ret[i] = '\n';
+	ret[i + 1] = '\0';
+	tmp = ft_strdup(ft_strchr(*str, '\n'));
+	free(*str);
+	*str = tmp;
+	return (ret);
 }
 
 /**
@@ -71,70 +74,59 @@ char	*read_until_newline(int fd)
 */
 char	*format_content(char **content)
 {
-	char		*new_content;
-	char		*tmp;
-	char		*str;
-	size_t	i;
+	char	*tmp;
 
-	if (!contains_newline(*content))
+	if (!ft_strchr(*content, '\n'))
 	{
 		tmp = ft_strdup(*content);
 		free(*content);
 		return (tmp);
 	}
 	else
-	{
-		str = *content;
-		i = 0;
-		while (str[i])
-		{
-			if (str[i] == '\n')
-			{
-				tmp = ft_strndup(str, i);
-				if (!tmp)
-					return (NULL);
-				new_content = ft_strdup(&str[i + 1]);
-				if (!new_content)
-					return (NULL);
-				free(*content);
-				*content = new_content;
-				return (tmp);
-			}
-			i++;
-		}
-	}
-	return (NULL);
+		return (strtrim(content));
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*content;
-	char				*last_read;
-	char				*tmp;
 
+	printf("content: %s\n", content);
+
+	if (fd < 0 || read(fd, content, 0) < 0)
+		return (NULL);
 	if (!content)
 	{
 		content = read_until_newline(fd);
 		if (!content)
 			return (NULL);
 	}
-	if (!contains_newline(content))
-	{
-		last_read = read_until_newline(fd);
-		if (!last_read)
-		{
-			if (content)
-				return (format_content(&content));
-			return (NULL);
-		}
-		tmp = ft_strjoin(content, last_read);
-		free(last_read);
-		if (!tmp)
-			return (NULL);
-		free(content);
-		content = tmp;
-	}
 	return (format_content(&content));
+}
+
+
+int    main(void)
+{
+    int        file_descriptor;
+    char    *result;
+
+    file_descriptor = open("tests/test1.txt", O_RDONLY);
+    if (file_descriptor == -1)
+        return (0);
+    result = get_next_line(file_descriptor);
+    if (result == NULL)
+        return (0);
+    while (result != NULL)
+    {
+        printf("%s", result);
+        free(result);
+        result = NULL;
+        result = get_next_line(file_descriptor);
+        if (result == NULL)
+            return (0);
+    }
+    free(result);
+    result = NULL;
+    return (0);
 }
 
 // int	main(void)
@@ -145,7 +137,6 @@ char	*get_next_line(int fd)
 // 	fd = open("file.txt", O_RDONLY);
 // 	printf("call: %s\n", get_next_line(fd));
 // 	printf("call: %s\n", get_next_line(fd));
-
-// 	// printf("%i\n", !contains_newline(str));
+// 	printf("call: %s\n", get_next_line(fd));
 // 	return (0);
 // }
