@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/04 22:46:35 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/04 22:55:04 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ char	*read_until_newline(int fd)
 	result = NULL;
 	read_bytes = read(fd, buffer, BUFFER_SIZE);
 	buffer[read_bytes] = '\0';
+	//while ((!content || content && !strchr(content, '\n')) && read_bytes > 0)
 	while (!ft_strchr(result, '\n') && read_bytes > 0)
 	{
 		if (!result)
@@ -38,7 +39,10 @@ char	*read_until_newline(int fd)
 			return (NULL);
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		buffer[read_bytes] = '\0';
+		//content = strjoin(content, buffer)
 	}
+	//free(buffer)
+	//si falla buffer, liberas content porque puede haber un error ahi
 	return (result);
 }
 
@@ -97,6 +101,7 @@ char	*get_next_line(int fd)
 	if (!content)
 	{
 		content = read_until_newline(fd);
+		//content = read_until_newline(fd, content);
 		if (!content)
 			return (NULL);
 	}
