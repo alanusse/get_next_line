@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:38:55 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/05 14:04:37 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/05 22:06:13 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,5 +75,6 @@ char    *ft_strjoin(char *s1, char *s2)
   while (s2[++j])
     ptr[i + j] = s2[j];
   ptr[i + j] = '\0';
+  free(s1);
   return (ptr);
 }

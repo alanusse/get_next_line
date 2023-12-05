@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/05 14:09:08 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/05 23:18:43 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,33 +33,25 @@ char	*get_read_data(int fd)
 
 /**
  * Read file descriptor until a '\\n' character is found in the buffer
- * and return a string with all buffers joined into it.
- * 
- * If there is nothing to read or an error occurred, return NULL.
+ * and assign to content variable all read buffers joined.
 */
-char	*read_until_newline(int fd)
+void	read_until_newline(int fd, char **content)
 {
 	char	*read;
-	char	*tmp;
-	char	*ret;
 
-	ret = NULL;
-	while (!ft_strchr(ret, '\n'))
+	while (!ft_strchr(*content, '\n'))
 	{
 		read = get_read_data(fd);
 		if (!read)
-			return (ret);
-		if (!ret)
-			ret = read;
+			return ;
+		if (!*content)
+			*content = read;
 		else
 		{
-			tmp = ft_strjoin(ret, read);
-			free(ret);
+			*content = ft_strjoin(*content, read);
 			free(read);
-			ret = tmp;
 		}
 	}
-	return (ret);
 }
 
 // char	*strtrim(char **str)
@@ -106,70 +98,86 @@ char	*read_until_newline(int fd)
 // 		return (strtrim(content));
 // }
 
-// char	*get_next_line(int fd)
-// {
-// 	static char	*content;
+char	*ft_substr(char *s, unsigned int start, size_t len)
+{
+	char	*sub;
+	size_t	i;
 
-// 	// printf("content: %s\n", content);
+	i = 0;
+	if (!s)
+		return (NULL);
+	if (len > ft_strlen(s) - start)
+		len = ft_strlen(s) - start;
+	sub = (char *)malloc(len + 1 * sizeof(char));
+	if (!sub)
+	{
+		free (s);
+		return (NULL);
+	}
+	while (i < len && s[start])
+		sub[i++] = s[start++];
+	sub[i] = '\0';
+	free(s);
+	return ((char *)sub);
+}
 
-// 	if (fd < 0 || read(fd, content, 0) < 0)
-// 		return (NULL);
-// 	read_until_newline(fd, &content);
-// 	return (format_content(&content));
-// }
+
+char	*strdup_until_newline(char *str)
+{
+	size_t	size;
+	char		*ret;
+
+	size = 0;
+	while (str[size] != '\n')
+		size++;
+	ret = (char *)malloc((size + 2) * sizeof(char));
+	if (!ret)
+		return (NULL);
+	
+	
+}
+
+char	*format_content(char **content)
+{
+	hola comoestas/nsoyjuan/0
+	char	*tmp;
+	char	*ret;
+	char	*n_pos;
+
+	n_pos = ft_strchr(*content, '\n');
+	if (!n_pos) //caso ultima linea
+	{
+		tmp = ft_strdup(*content);
+		free(*content);
+		return (tmp);
+	}
+	else
+	{
+		tmp = ft_substr(*(content), 0, n_pos + 1); //obtener la linea
+		//actualizar content
+		ret = ft_substr(*(content), n_pos + (*content), );
+	}
+}
 
 
-// int    main(void)
-// {
-//     int     file_descriptor;
-//     char    *result;
+char	*get_next_line(int fd)
+{
+	static char	*content;
+	char *line;
+	// printf("content: %s\n", content);
 
-//     file_descriptor = open("file.txt", O_RDONLY);
-//     if (file_descriptor == -1)
-//         return (0);
-//     result = read_until_newline(file_descriptor);
-//     if (result == NULL)
-//         return (0);
-//     while (result != NULL)
-//     {
-//         printf("read: %s\n", result);
-//         free(result);
-//         result = NULL;
-//         result = read_until_newline(file_descriptor);
-//         if (result == NULL)
-//             return (0);
-//     }
-//     free(result);
-//     result = NULL;
-//     return (0);
-// }
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, content, 0) < 0)
+		return (NULL);
+	read_until_newline(fd, &content);
+	line = format_content(&content)
+	return (line);
+}
 
 int main()
 {
+	int     file_descriptor;
+
+	file_descriptor = open("file.txt", O_RDONLY);
+	printf("%s", get_next_line(file_descriptor));
 	return (0);
 }
-
-// int    main(void)
-// {
-//     int        file_descriptor;
-//     char    *result;
-
-//     file_descriptor = open("tests/test1.txt", O_RDONLY);
-//     if (file_descriptor == -1)
-//         return (0);
-//     result = get_next_line(file_descriptor);
-//     if (result == NULL)
-//         return (0);
-//     while (result != NULL)
-//     {
-//         printf("%s", result);
-//         free(result);
-//         result = NULL;
-//         result = get_next_line(file_descriptor);
-//         if (result == NULL)
-//             return (0);
-//     }
-//     free(result);
-//     result = NULL;
-//     return (0);
-// }
