@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/07 01:34:08 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/11 02:15:07 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,108 +14,153 @@
 #include <printf.h>
 
 /**
- * Get read data of file descriptor.
+ * Read file descriptor and returns read data.
  * 
- * Return a string containing buffer or return NULL if read bytes is 0.
+ * If bytes read is 0 returns NULL.
+ * If an error occurred in the read returns NULL.
 */
-char	*get_read_data(int fd)
-{
-	char 		buffer[BUFFER_SIZE + 1];
-	ssize_t	read_bytes;
+// char	*read_fd(int fd)
+// {
+// 	char		buffer[BUFFER_SIZE + 1];
+// 	ssize_t	bytes_read;
 
-	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	buffer[read_bytes] = '\0';
-	if (read_bytes <= 0)
+// 	bytes_read = read(fd, buffer, BUFFER_SIZE);
+// 	buffer[bytes_read] = '\0';
+// 	if (bytes_read <= 0)
+// 		return (NULL);
+// 	return (ft_strdup(buffer));
+// }
+char	*read_fd(int fd)
+{
+	char		buffer[BUFFER_SIZE];
+	ssize_t	bytes_read;
+	char		*ret;
+	ssize_t	i;
+
+	bytes_read = read(fd, &buffer, BUFFER_SIZE);
+	if (bytes_read <= 0)
 		return (NULL);
-	return (ft_strdup(buffer));
+	ret = (char *)malloc((bytes_read + 1) * sizeof(char));
+	if (!ret)
+		return (NULL);
+	ret[bytes_read] = '\0';
+	i = -1;
+	while (++i < bytes_read)
+		ret[i] = buffer[i];
+	return (ret);
 }
 
 /**
- * Read file descriptor until a '\\n' character is found in the buffer
- * and assign to content variable all read buffers joined.
+ * Read file descriptor and join results until a '\\n' or '\\0' character
+ * is found in result string.
+ * 
+ * If there is nothing to read returns NULL.
 */
-void	read_until_newline(int fd, char **content)
+char	*read_fd_until_newline(int fd)
 {
-	char	*read;
+	char	*read_data;
+	char	*ret;
 
-	while (!ft_strchr(*content, '\n'))
+	ret = NULL;
+	while (!ret || !ft_strchr(ret, '\n'))
 	{
-		read = get_read_data(fd);
-		if (!read)
-			return ;
-		if (!*content)
-			*content = read;
+		read_data = read_fd(fd);
+		if (!read_data)
+			return (ret);
+		if (!ret)
+			ret = read_data;
 		else
 		{
-			*content = ft_strjoin(*content, read);
-			free(read);
+			ret = ft_strjoin(ret, read_data);
+			free(read_data);
 		}
 	}
+	return (ret);
 }
-
-char	*format_content(char **content)
+/**
+ * hola
+ * hola\nhola
+ * hola\n
+ * hola\n\n
+ * \nhola
+ * \n\nhola
+*/
+char	*return_line(char **content)
 {
-	char	*str;
+	char	*newline_position;
 	char	*tmp;
 	char	*ret;
-	char	*n_pos;
 
-	n_pos = ft_strchr(*content, '\n');
-	if (!n_pos)
+	newline_position = ft_strchr(*content, '\n');
+	if (!newline_position)
 	{
-		tmp = ft_strdup(*content);
+		ret = ft_strdup(*content);
 		free(*content);
-		return (tmp);
+		*content = NULL;
 	}
 	else
 	{
-		str = *content;
-		ret = ft_substr(str, 0, ((n_pos - &str[0]) + 2));
+		ret = ft_substr(*content, 0, newline_position - *content + 1);
 		if (!ret)
 			return (NULL);
-		tmp = ft_strdup(&str[n_pos - &str[0] + 2]);
+		tmp = ft_strdup(newline_position + 1);
 		if (!tmp)
 			return (NULL);
 		free(*content);
 		*content = tmp;
-		return (ret);
 	}
+	return (ret);
 }
-
 
 char	*get_next_line(int fd)
 {
 	static char	*content;
+	char				*tmp;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, content, 0) < 0 ||
-			(content && ft_strlen(content) == 0))
+	if (fd < 0 || BUFFER_SIZE < 1 || read(fd, 0, 0) < 0)
 		return (NULL);
-	read_until_newline(fd, &content);
-	if (content)
-		return (format_content(&content));
-	else
+	if (!content) // caso primera llamada o llamada luego de devolver todas las lineas.
+		content = read_fd_until_newline(fd);
+	else if (!ft_strchr(content, '\n')) // caso llamada que no contenga \n en el content.
+	{
+		tmp = read_fd_until_newline(fd);
+		if (tmp)
+		{
+			content = ft_strjoin(content, tmp);
+			free(tmp);
+		}
+	}
+	if (!content)
 		return (NULL);
-}
-
-int main()
-{
-	int     file_descriptor;
-	char    *str;
-
-	file_descriptor = open("file.txt", O_RDONLY);
-	
-	printf("%s", get_next_line(file_descriptor));
-	printf("%s", get_next_line(file_descriptor));
-	// printf("%s", get_next_line(file_descriptor));
-	// printf("%s", get_next_line(file_descriptor));
-	// printf("%s", get_next_line(file_descriptor));
-	return (0);
+	return (return_line(&content));
 }
 
 // int main()
 // {
-// 	char *str = "hola mundo";
+// 	int     file_descriptor;
+// 	char    *str;
 
-// 	printf("%li\n", &str[3] - &str[0]); // output: 3
+// 	file_descriptor = open("file.txt", O_RDONLY);
+	
+// 	str = get_next_line(file_descriptor);
+// 	printf("%s", str);
+// 	free(str);
+	
+// 	// str = get_next_line(file_descriptor);
+// 	// printf("%s", str);
+// 	// str = get_next_line(file_descriptor);
+// 	// printf("%s", str);
+// 	// str = get_next_line(file_descriptor);
+// 	// printf("%s", str);
+
+// 	return (0);
+// }
+
+// int main()
+// {
+// 	char *str = "hola\n mundo";
+// 	char *ch = ft_strchr(str, '\n');
+
+// 	printf("%s", ft_substr(str, 0, ch - str + 1));
 // 	return (0);
 // }
