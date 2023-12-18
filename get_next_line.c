@@ -6,120 +6,121 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/11 20:03:44 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/18 01:27:12 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-// #include <printf.h>
+#include <printf.h>
 
-/**
- * Read file descriptor and returns read data.
- * 
- * If bytes read is 0 returns NULL.
- * If an error occurred in the read returns NULL.
-*/
-char	*read_fd(int fd)
+void	free_content(char **content)
+{
+	free(*content);
+	*content = NULL;
+}
+
+void	read_until_newline(int fd, char **content)
 {
 	char		buffer[BUFFER_SIZE + 1];
-	ssize_t	bytes_read;
+	ssize_t	read_bytes;
+	char		*result;
 
-	bytes_read = read(fd, buffer, BUFFER_SIZE);
-	buffer[bytes_read] = '\0';
-	if (bytes_read <= 0)
-		return (NULL);
-	return (ft_strdup(buffer));
-}
-
-/**
- * Read file descriptor and join results until a '\\n' or '\\0' character
- * is found in result string.
- * 
- * If there is nothing to read returns NULL.
-*/
-char	*read_fd_until_newline(int fd)
-{
-	char	*read_data;
-	char	*ret;
-
-	ret = NULL;
-	while (!ret || !ft_strchr(ret, '\n'))
+	result = NULL;
+	while (!ft_strchr(*content, '\n'))
 	{
-		read_data = read_fd(fd);
-		if (!read_data)
-			return (ret);
-		if (!ret)
-			ret = read_data;
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		if (read_bytes <= 0)
+		{
+			if (read_bytes < 0 && *content)
+				free_content(content);
+			return ;
+		}
+		buffer[read_bytes] = '\0';
+		if (!*content)
+		{
+			result = ft_strdup(buffer);
+			if (!result)
+				return (free_content(content));
+		}
 		else
 		{
-			ret = ft_strjoin(ret, read_data);
-			free(read_data);
+			result = ft_strjoin(*content, buffer);
+			if (!result)
+			{
+				free_content(content);
+				return ;
+			}
 		}
+		*content = result;
 	}
-	return (ret);
 }
-char	*return_line(char **content)
-{
-	char	*newline_position;
-	char	*tmp;
-	char	*ret;
 
-	ret = NULL;
-	newline_position = ft_strchr(*content, '\n');
-	if (!newline_position)
+char	*retrieve_line(char *content)
+{
+	char	*nl_pos;
+	char	*line;
+
+	nl_pos = ft_strchr(content, '\n');
+	if (!nl_pos)
 	{
-		ret = ft_strdup(*content);
-		free(*content);
-		*content = NULL;
+		line = ft_strdup(content);
+		if (!line)
+			return (NULL);
 	}
 	else
 	{
-		ret = ft_substr(*content, 0, newline_position - *content + 1);
-		if (!ret)
+		line = ft_substr(content, 0, nl_pos - content + 1);
+		if (!line)
 			return (NULL);
-		if (!newline_position[1])
-		{
-			free(*content);
-			*content = NULL;
-		}
+	}
+	return (line);
+}
+
+void	update_content(char **content)
+{
+	char	*nl_pos;
+	char	*tmp;
+
+	nl_pos = ft_strchr(*content, '\n');
+	if (!nl_pos)
+		free_content(content);
+	else
+	{
+		if (ft_strlen(nl_pos + 1) == 0)
+			free_content(content);
 		else
 		{
-			tmp = ft_strdup(newline_position + 1);
-			if (!tmp)
-				return (NULL);
+			tmp = ft_substr(*content, nl_pos - *content + 1, ft_strlen(*content));
 			free(*content);
 			*content = tmp;
 		}
 	}
-	return (ret);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*content;
-	char				*tmp;
+	char				*line;
 
-	if (fd < 0 || BUFFER_SIZE < 1 || read(fd, 0, 0) < 0)
+	// if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 	{
-		if (content)
-			free(content);
-		content = NULL;
+		// if (content)
+		// 	free_content(&content);
 		return (NULL);
 	}
-	if (!content) // caso primera llamada o llamada luego de devolver todas las lineas.
-		content = read_fd_until_newline(fd);
-	else if (!ft_strchr(content, '\n')) // caso llamada que no contenga \n en el content.
-	{
-		tmp = read_fd_until_newline(fd);
-		if (tmp)
-		{
-			content = ft_strjoin(content, tmp);
-			free(tmp);
-		}
-	}
+	read_until_newline(fd, &content);
 	if (!content)
 		return (NULL);
-	return (return_line(&content));
+	line = retrieve_line(content);
+	if (!line) // maybe free content
+	{
+		if (content)
+			free_content(&content);
+		return (NULL);
+	}
+	update_content(&content);
+	return (line);
 }
 
 // int main()
@@ -130,20 +131,16 @@ char	*get_next_line(int fd)
 // 	file_descriptor = open("file.txt", O_RDONLY);
 	
 // 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
+// 	printf("line: %s", str);
+// 	free(str);
+
+// 	str = get_next_line(file_descriptor);
+// 	printf("line: %s", str);
 // 	free(str);
 	
 // 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
+// 	printf("line: %s", str);
 // 	free(str);
-	
-// 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
-// 	free(str);
-	
-// 	// str = get_next_line(file_descriptor);
-// 	// printf("%s", str);
-// 	// str = get_next_line(file_descriptor);
-// 	// printf("%s", str);
-// 	// str = get_next_line(file_descriptor);
-// 	// printf("%s", str);
+
+// 	return (0);
+// }

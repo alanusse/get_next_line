@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:17:33 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/06 13:34:25 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/15 01:55:41 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include "fcntl.h"
 # include "unistd.h"
 # include "stdlib.h"
+# include "errno.h"
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 10

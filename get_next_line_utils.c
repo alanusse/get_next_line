@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:38:55 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/11 02:17:22 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/18 01:27:05 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,25 +40,24 @@ char    *ft_strchr(char *s, int c)
   return (NULL);
 }
 
-char	*ft_strdup(char *src)
+char	*ft_strdup(char *s1)
 {
-	char	*new;
+	char	*dup;
+	int		len;
 	int		i;
-	int		size;
 
-	size = 0;
-	while (src[size])
-		size++;
-	if (!(new = malloc(sizeof(char) * (size + 1))))
-		return (NULL);
-	i = 0;
-	while (src[i])
+	len = ft_strlen(s1);
+	dup = (char *)malloc((len + 1) * sizeof(char));
+	if (!dup)
 	{
-		new[i] = src[i];
-		i++;
+		errno = ENOMEM;
+		return (NULL);
 	}
-	new[i] = '\0';
-	return (new);
+	dup[len] = '\0';
+  i = -1;
+	while(s1[++i])
+    dup[i] = s1[i];
+	return (dup);
 }
 
 char    *ft_strjoin(char *s1, char *s2)
@@ -71,7 +70,7 @@ char    *ft_strjoin(char *s1, char *s2)
   strlen = ft_strlen(s1) + ft_strlen(s2);
   ptr = (char *)malloc((strlen + 1) * sizeof(char));
   if (!ptr)
-    return (NULL);
+		return (NULL);
   i = -1;
   while (s1[++i])
     ptr[i] = s1[i];
