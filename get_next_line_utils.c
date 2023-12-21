@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:38:55 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/18 01:27:05 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/21 13:41:54 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ size_t  ft_strlen(char *str)
 {
   size_t  count;
   
+  if (!str)
+    return (0);
   count = 0;
   while (str[count])
     count++;
@@ -49,10 +51,7 @@ char	*ft_strdup(char *s1)
 	len = ft_strlen(s1);
 	dup = (char *)malloc((len + 1) * sizeof(char));
 	if (!dup)
-	{
-		errno = ENOMEM;
 		return (NULL);
-	}
 	dup[len] = '\0';
   i = -1;
 	while(s1[++i])
@@ -71,12 +70,18 @@ char    *ft_strjoin(char *s1, char *s2)
   ptr = (char *)malloc((strlen + 1) * sizeof(char));
   if (!ptr)
 		return (NULL);
-  i = -1;
-  while (s1[++i])
+  i = 0;
+  while (s1 && s1[i])
+  {
     ptr[i] = s1[i];
-  j = -1;
-  while (s2[++j])
+    i++;
+  }
+  j = 0;
+  while (s2 && s2[j])
+  {
     ptr[i + j] = s2[j];
+    j++;
+  }
   ptr[i + j] = '\0';
   free(s1);
   return (ptr);
