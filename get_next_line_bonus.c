@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/22 00:46:22 by aglanuss         ###   ########.fr       */
+/*   Created: 2023/12/22 00:45:21 by aglanuss          #+#    #+#             */
+/*   Updated: 2023/12/22 00:53:34 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 void	free_ptr(char **ptr)
 {
@@ -81,25 +81,25 @@ void	refresh_content(char **content)
 
 char	*get_next_line(int fd)
 {
-	static char	*content;
+	static char	*content[1024];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) == -1)
+	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0 || read(fd, 0, 0) == -1)
 	{
-		free_ptr(&content);
+		free_ptr(&content[fd]);
 		return (NULL);
 	}
 	line = NULL;
-	set_content(fd, &content);
-	if (!content)
+	set_content(fd, &content[fd]);
+	if (!content[fd])
 		return (NULL);
-	line = extract_line(content);
+	line = extract_line(content[fd]);
 	if (!line)
 	{
-		free_ptr(&content);
+		free_ptr(&content[fd]);
 		return (NULL);
 	}
-	refresh_content(&content);
+	refresh_content(&content[fd]);
 	return (line);
 }
 
