@@ -6,112 +6,133 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/11/07 20:32:56 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/21 13:40:44 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <printf.h>
 
-/**
- * Find a '\\n' character and returns its memory address.
- * 
- * If '\\n' is not found, returns NULL.
-*/
-char	*newline_position(char *str)
+void	free_ptr(char **ptr)
 {
-	size_t	i;
-
-	i = -1;
-	while (str[++i])
-	{
-		if (str[i] == '\n')
-			return (&str[i]);
-	}
-	return (NULL);
+	free(*ptr);
+	*ptr = NULL;
 }
 
-char	*append_new_content(char *str, char *buffer, int read_bytes)
+void	set_content(int fd, char **content)
 {
-	char	*content;
+	char		buffer[BUFFER_SIZE + 1];
+	char		*tmp;
+	ssize_t	bytes_read;
+
+	if (ft_strchr(*content, '\n'))
+		return ;
+	buffer[BUFFER_SIZE] = '\0';
+	while (!ft_strchr(*content, '\n'))
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read == -1)
+		{
+			free(tmp);
+			return (free_ptr(content));
+		}
+		buffer[bytes_read] = '\0';
+		if (bytes_read == 0)
+			return ;
+		tmp = ft_strjoin(*content, buffer);
+		if (!tmp)
+			return (free_ptr(content));
+		*content = tmp;
+	}
+}
+
+char	*extract_line(char *content)
+{
+	char	*nl_pos;
+	char	*line;
+
+	nl_pos = ft_strchr(content, '\n');
+	if (!nl_pos)
+	{
+		line = ft_strdup(content);
+		if (!line)
+			return (NULL); // todo: maybe free *content
+		return (line);
+	}
+	line = ft_substr(content, 0, nl_pos - content + 1);
+	if (!line)
+		return (NULL); // todo: maybe free content
+	return (line);
+}
+
+void	refresh_content(char **content)
+{
+	char	*nl_pos;
 	char	*tmp;
 
-	content = (char *)malloc((read_bytes + 1) * sizeof(char));
+	nl_pos = ft_strchr(*content, '\n');
+	if (!nl_pos || ft_strlen(nl_pos + 1) == 0)
+		return (free_ptr(content));
+	tmp = ft_strdup(nl_pos + 1);
+	if (!tmp)
+		return free_ptr(content); // todo: maybe free content
+	free_ptr(content);
+	*content = tmp;
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*content;
+	char				*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) == -1)
+	{
+		free_ptr(&content);
+		return (NULL);
+	}
+	line = NULL;
+	set_content(fd, &content);
 	if (!content)
 		return (NULL);
-	ft_strlcpy(content, buffer, read_bytes);
-	if (!str)
-		str = ft_strdup(content);
-	else
+	line = extract_line(content);
+	if (!line)
 	{
-		tmp = ft_strjoin(str, content);
-		if (!tmp)
-			return (NULL);
-		free(str);
-		str = tmp;
-	}
-	free(content);
-	return (str);
-}
-
-/**
- * Read a file descriptor until a '\\n' is found in buffer.
- * 
- * This function will return a string containing all readings until a '\\n'
- * character was encountered in new buffer.
-*/
-char	*read_until_newline(int fd)
-{
-	char	buffer[BUFFER_SIZE];
-	ssize_t	read_bytes;
-	char	*str;
-
-	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	str = NULL;
-	while (read_bytes > 0)
-	{
-		if (!append_new_content(str, buffer, read_bytes))
-			return (NULL);
-		read_bytes = read(fd, buffer, BUFFER_SIZE);
-	}
-	return (str);
-}
-
-/**
- * Read file once with BUFFER_SIZE as value and return a string of read result.
- * 
- * Return NULL if read function return 0 or an error occurred.
-*/
-char	*read_fd(int fd)
-{
-	char	buffer[BUFFER_SIZE];
-	char	*str;
-	ssize_t	read_bytes;
-
-	read_bytes = read(fd, buffer, BUFFER_SIZE);
-	if (read_bytes <= 0)
+		free_ptr(&content);
 		return (NULL);
-	str = (char *)malloc((read_bytes + 1) * sizeof(char));
-	if (!str)
-		return (NULL);
-	ft_strlcpy(str, buffer, read_bytes);
-	return (str);
+	}
+	refresh_content(&content);
+	return (line);
 }
 
-// char	*get_next_line(int fd)
+// int main()
 // {
+// 	char *str = "hola\nque tal";
+// 	char *npos = ft_strchr(str, '\n');
 
+// 	printf("%s", ft_substr(str, npos - str, ft_strlen(str)));
+// 	return 0;
 // }
 
-int	main(void)
-{
-	int		fd;
-	char	*str;
 
-	fd = open("file.txt", O_RDONLY);
-	str = read_until_newline(fd);
-	// str = read_fd(fd);
-	printf("%s\n", str);
-	free(str);
-	return (0);
-}
+// int main()
+// {
+// 	int     file_descriptor;
+// 	char    *str;
+
+// 	file_descriptor = open("file.txt", O_RDONLY);
+	
+// 	str = get_next_line(file_descriptor);
+// 	printf("%s", str);
+// 	free(str);
+
+// 	str = get_next_line(file_descriptor);
+// 	printf("%s", str);
+// 	free(str);
+	
+// 	str = get_next_line(file_descriptor);
+// 	printf("%s", str);
+// 	free(str);
+	
+// 	close(file_descriptor);
+// 	return (0);
+// }
