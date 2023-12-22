@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 00:45:21 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/22 00:53:34 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/22 12:38:38 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	refresh_content(char **content)
 
 char	*get_next_line(int fd)
 {
-	static char	*content[1024];
+	static char	*content[1025];
 	char		*line;
 
 	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0 || read(fd, 0, 0) == -1)
