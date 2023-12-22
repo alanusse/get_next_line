@@ -191,11 +191,22 @@ int main()
   printf("\n");
   close(fd);
 
+  /* ********** */
 
+  printf("fd_errors ");
+  fd = open("files/ghost.txt", O_RDONLY);
+  gnl_test(fd, NULL, 1);
+  printf("\n");
+  close(fd);
+
+  fd = open("files/many_lines.txt", O_RDONLY);
+  gnl_test(fd, NULL, 1);
+  printf("\n");
+  close(fd);
+
+  /* ********** */
 
   // stdin
-  // error in fd
-  // file that not exists
   // limits
   return (0);
 }
