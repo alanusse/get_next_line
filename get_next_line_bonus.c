@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 00:45:21 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/22 12:38:38 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/22 12:53:50 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,24 +102,3 @@ char	*get_next_line(int fd)
 	refresh_content(&content[fd]);
 	return (line);
 }
-
-// int main()
-// {
-// 	int     file_descriptor;
-// 	char    *str;
-
-// 	file_descriptor = open("file.txt", O_RDONLY);
-
-// 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
-// 	free(str);
-
-// 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
-// 	free(str);
-// 	str = get_next_line(file_descriptor);
-// 	printf("%s", str);
-// 	free(str);
-// 	close(file_descriptor);
-// 	return (0);
-// }
