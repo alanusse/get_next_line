@@ -199,8 +199,11 @@ int main()
   printf("\n");
   close(fd);
 
+  /* ********** */
+
+  printf("many_lines ");
   fd = open("files/many_lines.txt", O_RDONLY);
-  gnl_test(fd, NULL, 1);
+  gnl_test(fd, "this is a test!\n", 1);
   printf("\n");
   close(fd);
 
