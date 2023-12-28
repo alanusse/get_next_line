@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/22 12:53:54 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/28 09:37:53 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@ void	set_content(int fd, char **content)
 	char		*tmp;
 	ssize_t		bytes_read;
 
-	if (ft_strchr(*content, '\n'))
-		return ;
 	buffer[BUFFER_SIZE] = '\0';
 	while (!ft_strchr(*content, '\n'))
 	{
@@ -40,7 +38,10 @@ void	set_content(int fd, char **content)
 			return ;
 		tmp = ft_strjoin(*content, buffer);
 		if (!tmp)
-			return (free_ptr(content));
+		{
+			free_ptr(content);
+			return ;
+		}
 		*content = tmp;
 	}
 }
