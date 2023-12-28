@@ -6,7 +6,7 @@
 /*   By: aglanuss <aglanuss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:18:20 by aglanuss          #+#    #+#             */
-/*   Updated: 2023/12/28 09:37:53 by aglanuss         ###   ########.fr       */
+/*   Updated: 2023/12/28 11:42:36 by aglanuss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,30 +20,28 @@ void	free_ptr(char **ptr)
 
 void	set_content(int fd, char **content)
 {
-	char		buffer[BUFFER_SIZE + 1];
+	char		*buffer;
 	char		*tmp;
 	ssize_t		bytes_read;
 
+	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	if (!buffer)
+		return (free_ptr(content));
 	buffer[BUFFER_SIZE] = '\0';
 	while (!ft_strchr(*content, '\n'))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
-		{
-			free(tmp);
-			return (free_ptr(content));
-		}
+			return (free_ptr(content), free(buffer), free(tmp));
 		buffer[bytes_read] = '\0';
 		if (bytes_read == 0)
-			return ;
+			return (free(buffer));
 		tmp = ft_strjoin(*content, buffer);
 		if (!tmp)
-		{
-			free_ptr(content);
-			return ;
-		}
+			return (free(buffer), free_ptr(content));
 		*content = tmp;
 	}
+	free(buffer);
 }
 
 char	*extract_line(char *content)
